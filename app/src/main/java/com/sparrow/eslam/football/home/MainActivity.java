@@ -1,30 +1,18 @@
-package com.sparrow.eslam.football;
+package com.sparrow.eslam.football.home;
 
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.TextView;
 
-import com.google.gson.Gson;
+import com.sparrow.eslam.football.API.FootballApi;
+import com.sparrow.eslam.football.R;
+import com.sparrow.eslam.football.pojo.Competition;
+import com.sparrow.eslam.football.pojo.PlayersItem;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Scanner;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -35,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RecyclerView rv =findViewById(R.id.recycle_view);
+
 //
 //        final TextView tv = findViewById(R.id.players) ;
 //        StrictMode.ThreadPolicy policy = new
@@ -68,6 +58,20 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("Eslam...",item.getName());
                     }
                 });
+        service.getCompetations()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(competitions -> {
+                            for (Competition item : competitions) {
+                                Log.i("Eslam...", item.getLeague());
+                                Log.i("Eslam...", item.getCaption());
+                            }
+
+                            Adaptor adaptor = new Adaptor(competitions);
+                            rv.setLayoutManager(new LinearLayoutManager(this));
+                            rv.setAdapter(adaptor);
+                        });
+
 
 //
 //
