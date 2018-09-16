@@ -7,8 +7,11 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.sparrow.eslam.football.API.FootballApi;
+import com.sparrow.eslam.football.NetworkCall;
 import com.sparrow.eslam.football.R;
+import com.sparrow.eslam.football.TestAsync;
 import com.sparrow.eslam.football.pojo.Competition;
+import com.sparrow.eslam.football.pojo.Players;
 import com.sparrow.eslam.football.pojo.PlayersItem;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -17,7 +20,20 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity /*implements NetworkCall*/ {
+
+    NetworkCall networkCall = new NetworkCall<Players[]>() {
+        @Override
+        public void onSuccess(Players[] players) {
+
+        }
+
+        @Override
+        public void onFail(Throwable throwable) {
+
+        }
+    };
+    TestAsync testAsync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,37 +57,40 @@ public class MainActivity extends AppCompatActivity {
 //
 //        thread.run();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://api.football-data.org")
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://api.football-data.org")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+//                .build();
+//
+//        FootballApi service = retrofit.create(FootballApi.class);
+//
+//        service.getPlayers("498")
+//                .map(players -> players.getPlayers())
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(playersItems -> {
+//                    for(PlayersItem item : playersItems){
+//                        Log.i("Eslam...",item.getName());
+//                    }
+//                });
+//        service.getCompetations()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(competitions -> {
+//                            for (Competition item : competitions) {
+//                                Log.i("Eslam...", item.getLeague());
+//                                Log.i("Eslam...", item.getCaption());
+//                            }
+//
+//                            Adaptor adaptor = new Adaptor(competitions);
+//                            rv.setLayoutManager(new LinearLayoutManager(this));
+//                            rv.setAdapter(adaptor);
+//                        });
 
-        FootballApi service = retrofit.create(FootballApi.class);
 
-        service.getPlayers("498")
-                .map(players -> players.getPlayers())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(playersItems -> {
-                    for(PlayersItem item : playersItems){
-                        Log.i("Eslam...",item.getName());
-                    }
-                });
-        service.getCompetations()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(competitions -> {
-                            for (Competition item : competitions) {
-                                Log.i("Eslam...", item.getLeague());
-                                Log.i("Eslam...", item.getCaption());
-                            }
-
-                            Adaptor adaptor = new Adaptor(competitions);
-                            rv.setLayoutManager(new LinearLayoutManager(this));
-                            rv.setAdapter(adaptor);
-                        });
-
+        testAsync = new TestAsync(networkCall);
+        testAsync.execute();
 
 //
 //
@@ -98,4 +117,25 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void onPlayersReady(Players[] players){
+        Log.i("Eslam...",players[0].toString());
+    }
+
+    @Override
+    protected void onDestroy() {
+        testAsync.removeCallback();
+        super.onDestroy();
+    }
+
+    //
+//    @Override
+//    public void onSuccess(Players[] players) {
+//
+//    }
+//
+//    @Override
+//    public void onFail(Throwable throwable) {
+//
+//    }
 }
