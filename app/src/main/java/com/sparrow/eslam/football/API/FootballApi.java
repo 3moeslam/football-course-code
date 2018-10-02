@@ -6,6 +6,7 @@ import com.sparrow.eslam.football.pojo.Players;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -15,5 +16,5 @@ public interface FootballApi {
     Observable<Players> getPlayers(@Path("teamID") String teamID);
 
     @GET("/v1/competitions/")
-    Observable< List<Competition> > getCompetations();
+    Single<List<Competition> > getCompetations();
 }
